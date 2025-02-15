@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Story Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .left-panel {
+            width: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            border-right: 2px solid #ccc;
+        }
+        .upload-box {
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+            border: 2px dashed #007BFF;
+            padding: 30px;
+            cursor: pointer;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+        .upload-box:hover {
+            background-color: #e6f7ff;
+        }
+        .output {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .output h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .output-text {
+            margin: 5px 0;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            white-space: pre-wrap;
+        }
+        audio {
+            margin-top: 10px;
+            width: 100%;
+        }
+        .right-panel {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                Click to Upload Image
+            </div>
+            <input type="file" id="fileInput" style="display: none" accept="image/*" onchange="uploadFile()">
+
+            <div class="output">
+                <h3>Caption:</h3>
+                <div class="output-text" id="caption">Waiting for image...</div>
+
+                <h3>Story:</h3>
+                <div class="output-text" id="story">Waiting for story...</div>
+
+                <h3>Audio:</h3>
+                <audio id="audioPlayer" controls style="display:none">
+                    <source src="" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </div>
+
+        <!-- Right Panel for Image Display -->
+        <div class="right-panel">
+            <img id="uploadedImage" class="uploaded-image" src="" alt="Uploaded Image">
+        </div>
+    </div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    document.getElementById('uploadedImage').src = data.image_path;
+                    document.getElementById('uploadedImage').style.display = 'block';
+                    document.getElementById('caption').innerText = data.caption;
+                    document.getElementById('story').innerText = data.story;
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = data.audio_url;
+                    audioPlayer.style.display = 'block';
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to upload the file.');
+            }
+        }
+    </script>
+</body>
+</html>
