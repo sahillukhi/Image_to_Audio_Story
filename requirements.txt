@@ -1,0 +1,7 @@
+groq
+google-cloud-texttospeech
+gtts
+huggingface
+huggingface_hub
+langchain
+python-dotenv
